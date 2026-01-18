@@ -3,8 +3,6 @@
 A personal AI assistant that lives on your desktop built to assist with tasks, research, and productivity.
 ---
 
-## Quick Start
-
 ## Prerequisites
 
 - [Docker](https://www.docker.com/get-started) installed  
