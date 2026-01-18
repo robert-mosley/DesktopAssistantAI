@@ -1,0 +1,21 @@
+# Build artifacts
+build/
+*.o
+*.obj
+*.log
+
+# IDE / editor settings
+.vscode/
+.qtcreator/
+
+# Python
+__pycache__/
+*.pyc
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+*.env
