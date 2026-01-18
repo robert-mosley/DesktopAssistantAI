@@ -5,10 +5,13 @@ A personal AI assistant that lives on your desktop built to assist with tasks, r
 
 ## Quick Start
 
-### Prerequisites
+## Prerequisites
 
-- Docker installed  
-- Optional: API keys for web search (`TAVILY_API_KEY`)  
+- [Docker](https://www.docker.com/get-started) installed  
+- Qt 6 (for GUI frontend)  
+- Download and place the following in your repo:
+  - **Whisper CLI** → `bin/whisper-cli.exe`  
+  - **Whisper model** → `models/ggml-base.en.bin`
 
 ### Installation & Running
 
