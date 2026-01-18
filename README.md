@@ -13,7 +13,7 @@ Installation & Running
 
 Clone the repository:
 
-git clone https://github.com/your-username/ai-assistant.git
+git clone https://github.com/robert-mosley/ai-assistant.git
 cd ai-assistant
 
 
