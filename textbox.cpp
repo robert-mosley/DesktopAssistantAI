@@ -43,14 +43,6 @@ TextBox::TextBox(QWidget *parent)
     tts->setPitch(-0.10);
     tts->setVolume(1.0);
 
-    vosk_set_log_level(0);
-
-    voskModel = vosk_model_new("C:/vosk/model");
-    if (!voskModel) {
-        qDebug() << "Failed to load Vosk model";
-    }
-
-    // Audio buffer
     buffer = new QBuffer(this);
     QFile *recordingFile = nullptr;
 
@@ -135,12 +127,14 @@ void TextBox::StartRecording() {
         QProcess process;
 
         QStringList args = {
-            "-m", "C:/Users/kbthe/Downloads/ggml-base.en.bin",
+            "-m", CoreApplication::applicationDirPath() + "/bin/ggml-base.en.bin",
             "-f", "input.wav",
             "-l", "en",
             "--no-timestamps"
         };
-        process.start("C:/Users/kbthe/Downloads/whisper-bin-x64/Release/whisper-cli.exe", args);
+        pQString whisperPath = QCoreApplication::applicationDirPath() + "/bin/whisper-cli.exe";
+        process.start(whisperPath, args);
+
 
         QString output = process.readAll();
         QString text;
@@ -221,102 +215,17 @@ void TextBox::HandleReply(QNetworkReply *reply) {
 
     QByteArray response = reply->readAll();
 
-    QJsonDocument doc = QJsonDocument::fromJson(response);
-
-    if (!doc.isNull()) {
-        QJsonObject obj = doc.object();
-        QString name = obj["name"].toString();
-        QJsonObject args = obj["arguments"].toObject();
-
-        QString argsStr = QString::fromUtf8(QJsonDocument(args).toJson(QJsonDocument::Compact));
-        qDebug() << "running";
-
-        QProcess process;
-        QString program = "python";
-        QStringList arguments;
-        arguments << "C:/Users/kbthe/OneDrive/Documents/Projects/BuiltInAIAssistant/BuiltInAIAssistant/src/CallFunction.py"
-                  << name
-                  << argsStr;
-
-        process.start(program, arguments);
-        process.waitForFinished(-1);
-
-        QString output = process.readAllStandardOutput();
-        QString error = process.readAllStandardError();
-
-        qDebug() << name;
-        qDebug() << "Output:" << output;
-        qDebug() << "Error:" << error;
-
-        if (name == "read_my_emails") {
-            for (MiniWindow *w : findChildren<MiniWindow*>()) {
-                w->close();
-            }
-
-            QStringList lines = output.split("--------------------------", Qt::SkipEmptyParts);
-            static int Ycoord = 50;
-            const int Xcoord = 10;
-            const int spacing = 200;
-
-            for (QString& line: lines) {
-                if (line.contains("python.exe") ||
-                    line.startsWith("{") ||
-                    line.startsWith("(") ||
-                    line.startsWith("search") ||
-                    line.startsWith("No information is available")){
-                    continue;
-                }
-
-                MiniWindow *mini = new MiniWindow(this);
-                mini->createMiniWindow(line);
-                mini->move(Xcoord, Ycoord);
-                Ycoord += spacing;
-                mini->show();
-            }
-            Ycoord = 50;
-        }
-
-        if (name == "search") {
-            for (MiniWindow *w : findChildren<MiniWindow*>()) {
-                w->close();
-            }
-
-            QStringList lines = output.split("\r\n", Qt::SkipEmptyParts);
-            qDebug() << "searching... ";
-            static int Ycoord = 50;
-            const int Xcoord = 10;
-            const int spacing = 200;
-
-            for (QString& line: lines) {
-                if (line.contains("python.exe") ||
-                    line.startsWith("{") ||
-                    line.startsWith("(") ||
-                    line.startsWith("search") ||
-                    line.startsWith("No information is available")){
-                    continue;
-                }
-
-                MiniWindow *mini = new MiniWindow(this);
-                mini->createMiniWindow(line);
-                mini->move(Xcoord, Ycoord);
-                Ycoord += spacing;
-                mini->show();
-            }
-            Ycoord = 50;
-        }
-    } else {
-        QString message = QString(response);
-        for (LargeWindow *w : findChildren<LargeWindow*>()) {
-            w->close();
-        }
-        LargeWindow *windo = new LargeWindow(this);
-        windo->createLargeWindow(response);
-        windo->move(770, 60);
-        windo->show();
-
-        tts->say(message);;
-        qDebug() << "spoken";
+    QString message = QString(response);
+    for (LargeWindow *w : findChildren<LargeWindow*>()) {
+        w->close();
     }
+    LargeWindow *windo = new LargeWindow(this);
+    windo->createLargeWindow(response);
+    windo->move(770, 60);
+    windo->show();
+
+    tts->say(message);;
+    qDebug() << "spoken";
 
     qDebug() << response;
     qDebug() << "done";
