@@ -32,29 +32,7 @@ tokenizer_ask.pad_token = tokenizer_ask.eos_token
 model_ask.eval()
 api_key = os.getenv("TAVILY_API_KEY", "default-key")
 
-text = "hello"
 context = """You're an AI assistant designed to help me with every day task, productivity and engineering. Youre name is JARVIS. Use the context you have to answer any questions."""
-formatted_prompt = f"""CONTEXT: {context}\nPROMPTER: {text}\nASSISTANT:"""
-print("starting...")
-
-inputs = tokenizer_ask(formatted_prompt, return_tensors="pt").to(model_ask.device)
-with torch.no_grad():
-    outputs = model_ask.generate(
-        **inputs,
-        max_new_tokens=250,
-        temperature=0.7,
-        top_p=0.9,
-        top_k=50,
-        repetition_penalty=1.2,
-        do_sample=True,
-        pad_token_id=tokenizer_ask.eos_token_id,
-        eos_token_id=tokenizer_ask.eos_token_id,
-        early_stopping=True
-    )
-
-
-response = tokenizer_ask.decode(outputs[0], skip_special_tokens=True)
-print(response)
 
 def get_from_web(query, k=3):
     context = ""
@@ -64,11 +42,11 @@ def get_from_web(query, k=3):
         json={"query": query, "api_key": api_key}
     )
     data = response.json()
-    """
+    
     for result in data["results"]:
         print(result["content"])
         context += result["content"] + "\n"
-    """
+    
     return context
 
 @app.post("/summarize")
